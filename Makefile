@@ -23,8 +23,8 @@ build: fmt vet
 # Build cain docker image
 docker: fmt vet
 	cp bin/cain cain
-	docker build -t nuvo/cain:latest .
-	rm cain
+	#docker build -t nuvo/cain:latest .
+	#rm cain
 
 
 # Push will only happen in travis ci
@@ -33,7 +33,7 @@ ifdef TRAVIS
 ifdef DOCKER_USER
 ifdef DOCKER_PASSWORD
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASSWORD)
-	docker push nuvo/cain:latest
+	#docker push nuvo/cain:latest
 endif
 endif
 endif
@@ -43,7 +43,7 @@ ifndef HAS_DEP
 	wget -q -O $(GOPATH)/bin/dep https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-linux-amd64
 	chmod +x $(GOPATH)/bin/dep
 endif
-	dep ensure
+	dep ensure -v
 
 dist:
 	mkdir -p $(DIST)

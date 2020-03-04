@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/nuvo/cain/pkg/utils"
-	"github.com/nuvo/skbn/pkg/skbn"
+	"github.com/ahmedjami/skbn/pkg/skbn"
+	"github.com/ahmedjami/cain/pkg/utils"
 )
 
 // TakeSnapshots takes a snapshot using nodetool in all pods in parallel

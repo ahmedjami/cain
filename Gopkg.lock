@@ -109,18 +109,6 @@
   version = "1.0.1"
 
 [[projects]]
-  name = "github.com/nuvo/cain"
-  packages = ["pkg/cain","pkg/utils"]
-  revision = "be0e30d2f2492dde912a165603005b4de2fb7cdc"
-  version = "0.5.1"
-
-[[projects]]
-  name = "github.com/nuvo/skbn"
-  packages = ["pkg/skbn","pkg/utils"]
-  revision = "f3f8aee53f67faa4d0337f7fd2406d5f265bb4f3"
-  version = "0.4.2"
-
-[[projects]]
   branch = "master"
   name = "github.com/petar/GoLLRB"
   packages = ["llrb"]
@@ -237,6 +225,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3a6571fec2c0b406ea51d021e935e6717207e0512a3df17787b52461a58d330b"
+  inputs-digest = "00e5c866d1afee95b7af34b2ad4f1a35c9331936946d55477954c91a0a1c2377"
   solver-name = "gps-cdcl"
   solver-version = 1

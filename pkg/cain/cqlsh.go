@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ahmedjami/skbn/pkg/skbn"
 	"github.com/ahmedjami/cain/pkg/utils"
+	"github.com/ahmedjami/skbn/pkg/skbn"
 )
 
 // BackupKeyspaceSchema gets the schema of the keyspace and backs it up
@@ -38,6 +38,20 @@ func BackupKeyspaceSchema(iK8sClient, iDstClient interface{}, namespace, pod, co
 // DescribeKeyspaceSchema describes the schema of the keyspace
 func DescribeKeyspaceSchema(iK8sClient interface{}, namespace, pod, container, keyspace string) ([]byte, string, error) {
 	command := []string{fmt.Sprintf("DESC %s;", keyspace)}
+	schema, err := Cqlsh(iK8sClient, namespace, pod, container, command)
+	if err != nil {
+		return nil, "", fmt.Errorf("Could not describe schema. make sure a schema exists for keyspace \"%s\" or restore it using \"--schema\". %s", keyspace, err)
+	}
+	h := sha256.New()
+	h.Write(schema)
+	sum := fmt.Sprintf("%x", h.Sum(nil))[0:6]
+
+	return schema, sum, nil
+}
+
+// DescribeTableSchema describes the schema of the table
+func DescribeTableSchema(iK8sClient interface{}, namespace, pod, container, keyspace string, table string) ([]byte, string, error) {
+	command := []string{fmt.Sprintf("DESC %s.%s;", keyspace, table)}
 	schema, err := Cqlsh(iK8sClient, namespace, pod, container, command)
 	if err != nil {
 		return nil, "", fmt.Errorf("Could not describe schema. make sure a schema exists for keyspace \"%s\" or restore it using \"--schema\". %s", keyspace, err)

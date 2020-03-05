@@ -29,6 +29,7 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 	var fromToPaths []skbn.FromToPair
 
 	filesToCopyRelativePaths, err := skbn.GetListOfFiles(srcClient, srcPrefix, srcPath)
+
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -38,16 +39,56 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 
 	pods := make(map[string]string)
 	tables := make(map[string]string)
+
 	testedPaths := make(map[string]string)
+
 	for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
 
 		fromPath := filepath.Join(srcPath, fileToCopyRelativePath)
 		toPath, err := PathFromSrcToK8s(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
+
 		if err != nil {
 			return nil, nil, nil, err
 		}
 
 		fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
+
+	}
+
+	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
+}
+
+// GetFromAndToPathsSrcTableToK8s performs a path mapping between a source Table and Kubernetes
+func GetFromAndToPathsSrcTableToK8s(srcClient, k8sClient interface{}, srcPrefix, srcPath, srcBasePath, namespace, container, cassandraDataDir string, tableName string) ([]skbn.FromToPair, []string, []string, error) {
+	var fromToPaths []skbn.FromToPair
+	//var filesToCopyRelativePaths2 []string
+
+	filesToCopyRelativePaths, err := skbn.GetListOfFiles(srcClient, srcPrefix, srcPath)
+	filesToCopyRelativePaths = removeUnusedTables(filesToCopyRelativePaths, tableName)
+
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if len(filesToCopyRelativePaths) == 0 {
+		return nil, nil, nil, fmt.Errorf("No files found to restore")
+	}
+
+	pods := make(map[string]string)
+	tables := make(map[string]string)
+
+	testedPaths := make(map[string]string)
+
+	for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
+
+		fromPath := filepath.Join(srcPath, fileToCopyRelativePath)
+		toPath, err := PathFromSrcToK8s(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
+
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
+
 	}
 
 	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
@@ -173,4 +214,19 @@ func TestK8sDirectory(iK8sClient interface{}, pods []string, namespace, containe
 		}
 	}
 	return nil
+}
+
+// removeUnusedTables removes tables that not used for restore
+func removeUnusedTables(s []string, r string) []string {
+	//log.Println(r)
+	for i := 0; i < len(s); i++ {
+		if !(strings.Contains(s[i], r)) {
+			s = append(s[:i], s[i+1:]...)
+
+			i-- // Since we just deleted a[i], we must redo that index
+		}
+
+	}
+
+	return s
 }
